@@ -1,6 +1,8 @@
 <?php
 
 use App\Http\Controllers\EventController;
+use App\Http\Controllers\PlayerController;
+use App\Http\Controllers\RewardController;
 use App\Http\Controllers\RoomAssignmentController;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
@@ -16,8 +18,10 @@ Route::group(['middleware'=> ['auth:sanctum']], function(){
 });
 
 //unprotected routes
-Route::post('/level-success',[RoomAssignmentController::class, 'levelSuccess']);
-Route::post('/event-score-list/{room_id}',[RoomAssignmentController::class, 'EventScoreList']);
-Route::post('/all-rooms-score-list',[RoomAssignmentController::class, 'allRoomsScroreList']);
-Route::post('/get-rewards',[EventController::class, '?????']);
-Route::post('/create-event',[EventController::class, '?????']);
+Route::get('/level-success',[RoomAssignmentController::class, 'levelSuccess']);
+Route::get('/event-score-list/{room_id}',[RoomAssignmentController::class, 'EventScoreList']);
+Route::get('/all-rooms-score-list',[RoomAssignmentController::class, 'allRoomsScroreList']);
+Route::get('/get-rewards',[EventController::class, '?????']);
+Route::post('/create-event',[EventController::class, 'store']);
+Route::post('/create-player',[PlayerController::class, 'store']);
+Route::post('/rewar-players',[RewardController::class, 'rewardAllPlayers']);

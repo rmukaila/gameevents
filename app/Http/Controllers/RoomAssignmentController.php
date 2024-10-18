@@ -6,12 +6,14 @@ use App\Models\Event;
 use App\Models\Player;
 use App\Models\Room;
 use App\Models\RoomAssignment;
+use App\Traits\HttpResponse;
 use Illuminate\Http\Request;
 
 use function Laravel\Prompts\select;
 
 class RoomAssignmentController extends Controller
 {
+    use HttpResponse;
     /**
      * Display a listing of the resource.
      */
@@ -30,6 +32,14 @@ class RoomAssignmentController extends Controller
 
         $event = MyHelperController::getCurrentActiveEvent();
         $player = Player::find($request->player_id);
+
+        if (empty($event)) {
+            return $this->error('No appropriate event found');
+        }
+
+        if (empty($player)) {
+            return $this->error('Player not found');
+        }
 
         //get player roomAssignment if player is already in a room
         $roomAssignment = RoomAssignment::where('player_id', $player->id)
@@ -52,19 +62,22 @@ class RoomAssignmentController extends Controller
      * Returns the list of players in a specific room, sorted by their scores in
      * descending order.
      */
-    public function EventScoreList(Room $room)
-    {
-
+    public function EventScoreList($room_id)    
+{
         $event = MyHelperController::getCurrentActiveEvent();
+
+        if (empty($event)) {
+            return $this->error('No active event found for this week');
+        }
         $roomAssignment = RoomAssignment::where('room_assignments.event_id', $event->id)
-        ->where('room_assignments.room_id', $room->id)
+        ->where('room_assignments.room_id', $room_id)
         ->join('players', 'room_assignments.player_id', '=', 'players.id')
         ->select('players.name', 'players.id', 'room_assignments.score')
         ->orderBy('room_assignments.score', 'desc')
         ->orderBy('room_assignments.updated_at', 'desc')
         ->get();
         
-        return ????????????;
+        return $this->success(['event_score_list' => $roomAssignment, 'room_id' => $room_id]);
     }
 
     
@@ -72,31 +85,20 @@ class RoomAssignmentController extends Controller
      * Provides a list of all rooms created for the event, along with the total
      * score for each room.
      */
-    public function allRoomsScroreList(string $id)
+    public function allRoomsScroreList()
     {
 
-        $event = Event::find($id);
+        $event = MyHelperController::getCurrentActiveEvent();
+
+        if (empty($event)) {
+            return $this->error('No active event found for this week');
+        }
+        
         $allRooms = RoomAssignment::where('event_id', $event->id)
-        ->selectRaw('room_assignments.room_id', 'SUM (room_assignments.score) as total_score')
-        ->groupBy('room_assignments.room_id')
+        ->selectRaw('room_id, SUM(score) as total_score')
+        ->groupBy('room_id')
         ->get();
 
-        return ???????????;
-    }
-
-    /**
-     * Update the specified resource in storage.
-     */
-    public function update(Request $request, string $id)
-    {
-        //
-    }
-
-    /**
-     * Remove the specified resource from storage.
-     */
-    public function destroy(string $id)
-    {
-        //
+        return $this->success(['all_rooms' => $allRooms]);
     }
 }

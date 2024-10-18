@@ -124,7 +124,7 @@ return [
     ],
 
     //max room size
-    'max_room_size' => 10,
+    'max_room_size' => 50,
 
     //player score per level
     'score_per_level' => 1,
