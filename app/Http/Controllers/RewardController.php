@@ -3,23 +3,28 @@
 namespace App\Http\Controllers;
 
 use App\Jobs\InsertRewardsJob;
+use App\Models\Event;
 use App\Models\Reward;
 use App\Models\Room;
 use App\Models\RoomAssignment;
+use App\Traits\HttpResponse;
+use Carbon\Carbon;
 use Exception;
 use Illuminate\Http\Request;
 
 class RewardController extends Controller
 {
+    use HttpResponse;
     /**
      * Run once at end of every event to reward players if event is active.
      * this should later be made to be run by a job scheduler in a queue.
      */
-    public function rewardAllPlayers()
+    public  function rewardAllPlayers__()
     {
         $endedEvent = MyHelperController::getJustEndedEvent();
+        // $endedEvent = MyHelperController::getCurrentActiveEvent();
 
-        if ($endedEvent) {
+        if (! empty($endedEvent)) {
         //get all rooms for the event
             $rooms = Room::where('event_id', $endedEvent->id)->get();
             foreach ($rooms as $room) {
@@ -29,9 +34,23 @@ class RewardController extends Controller
             //deactivate event
             $endedEvent->is_active = false;
             $endedEvent->save();
-        }
-        
+        }       
+    }
 
+    //reward all players
+    public function rewardAllPlayers()
+    {
+        // $now = Carbon::now();
+        // $justEndedEvent = Event::where('end_date', '<=', $now)
+        // ->where('end_date', '>=', $now->copy()->subWeek())  // Within the last week
+        // ->orderBy('end_date', 'desc')  // Get the most recent ended event
+        // ->first();
+        // return Carbon::now()->copy()->subWeek();
+        // $this->rewardAllPlayers__();
+        //enqueue job for rewarding playesrs
+        InsertRewardsJob::dispatch();
+
+        return $this->success('Player rewarding queued');
     }
 
 

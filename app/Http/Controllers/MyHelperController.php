@@ -10,6 +10,9 @@ use App\Traits\HttpResponse;
 use Carbon\Carbon;
 use Exception;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Cache;
+
+use function Illuminate\Log\log;
 
 class MyHelperController extends Controller
 {
@@ -86,12 +89,17 @@ class MyHelperController extends Controller
         //NOTE VERIFY THIS THAT CARBONS DATE FORMATTING MATCHES WHATS IN DATABASE
 
         // Get the current week's start and end date
-        $startOfWeek = Carbon::now()->startOfWeek();  // Start of the current week
-        $endOfWeek = Carbon::now()->endOfWeek();      // End of the current week
-
-        // Query to get rows created within the current week
-        $currentActiveEvent = Event::whereBetween('start_date', [$startOfWeek, $endOfWeek])
+        
+        // Query and cache the current active event 60 minutes cashe
+        $currentActiveEvent = Cache::remember('currentActiveEventess', 1, function (){
+            $startOfWeek = Carbon::now()->startOfWeek();  // Start of the current week
+            $endOfWeek = Carbon::now()->endOfWeek();
+            
+            return Event::whereBetween('start_date', [$startOfWeek, $endOfWeek])
             ->where('is_active', 1)->first();
+        }); 
+        
+        
         return $currentActiveEvent;
     }
 
@@ -102,9 +110,10 @@ class MyHelperController extends Controller
         //NOTE: VERIFY THIS THAT CARBONS DATE FORMATTING MATCHES WHATS IN DATABASE
         $now = Carbon::now();
         $justEndedEvent = Event::where('end_date', '<=', $now)
-        ->where('end_date', '>=', Carbon::now()->subWeek())  // Within the last week
+        ->where('end_date', '>=', $now()->copy()->subWeek())  // Within the last week
         ->orderBy('end_date', 'desc')  // Get the most recent ended event
         ->first();
+            
         return $justEndedEvent ?? [];
     }
 }

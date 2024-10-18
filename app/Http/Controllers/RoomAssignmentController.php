@@ -8,6 +8,7 @@ use App\Models\Room;
 use App\Models\RoomAssignment;
 use App\Traits\HttpResponse;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Cache;
 
 use function Laravel\Prompts\select;
 
@@ -69,13 +70,19 @@ class RoomAssignmentController extends Controller
         if (empty($event)) {
             return $this->error('No active event found for this week');
         }
-        $roomAssignment = RoomAssignment::where('room_assignments.event_id', $event->id)
-        ->where('room_assignments.room_id', $room_id)
-        ->join('players', 'room_assignments.player_id', '=', 'players.id')
-        ->select('players.name', 'players.id', 'room_assignments.score')
-        ->orderBy('room_assignments.score', 'desc')
-        ->orderBy('room_assignments.updated_at', 'desc')
-        ->get();
+
+        //query and cache for 1 minute
+        $roomAssignment = Cache::remember('event_score_list', 1, function () use ($event, $room_id) {
+           
+             return RoomAssignment::where('room_assignments.event_id', $event->id)
+            ->where('room_assignments.room_id', $room_id)
+            ->join('players', 'room_assignments.player_id', '=', 'players.id')
+            ->select('players.name', 'players.id', 'room_assignments.score')
+            ->orderBy('room_assignments.score', 'desc')
+            ->orderBy('room_assignments.updated_at', 'desc')
+            ->get();
+        });
+
         
         return $this->success(['event_score_list' => $roomAssignment, 'room_id' => $room_id]);
     }
@@ -93,12 +100,16 @@ class RoomAssignmentController extends Controller
         if (empty($event)) {
             return $this->error('No active event found for this week');
         }
-        
-        $allRooms = RoomAssignment::where('event_id', $event->id)
-        ->selectRaw('room_id, SUM(score) as total_score')
-        ->groupBy('room_id')
-        ->get();
 
+        //query and cache for 1 minute
+        $allRooms = Cache::remember('event_score_list', 1, function () use ($event) {
+           
+            return RoomAssignment::where('event_id', $event->id)
+            ->selectRaw('room_id, SUM(score) as total_score')
+            ->groupBy('room_id')
+            ->get();
+       });
+        
         return $this->success(['all_rooms' => $allRooms]);
     }
 }

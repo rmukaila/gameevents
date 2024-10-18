@@ -21,7 +21,7 @@ Route::group(['middleware'=> ['auth:sanctum']], function(){
 Route::get('/level-success',[RoomAssignmentController::class, 'levelSuccess']);
 Route::get('/event-score-list/{room_id}',[RoomAssignmentController::class, 'EventScoreList']);
 Route::get('/all-rooms-score-list',[RoomAssignmentController::class, 'allRoomsScroreList']);
-Route::get('/get-rewards',[EventController::class, '?????']);
+// Route::get('/get-rewards',[EventController::class, '?????']);
 Route::post('/create-event',[EventController::class, 'store']);
 Route::post('/create-player',[PlayerController::class, 'store']);
-Route::post('/rewar-players',[RewardController::class, 'rewardAllPlayers']);
+Route::get('/reward-players',[RewardController::class, 'rewardAllPlayers']);
