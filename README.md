@@ -37,6 +37,9 @@
   - [Step 7: Run Migrations (Optional)](#step-7-run-migrations-optional)
   - [Step 8: Access the Application](#step-8-access-the-application)
   - [Step 9: Stopping the Containers](#step-9-stopping-the-containers)
+  - [Step 10: Run the queue job](#step-10-run-queue-job)
+  - [Step 11: Access the Database GUI (Phpmyadmin)](#step-11-phpmyadmin-ui)
+  - [Step 12: Run the ](#step-11-)
 - [Additional Commands](#additional-commands)
 - [Conclusion](#conclusion)
 
@@ -46,9 +49,9 @@ This repository contains a Laravel project utilizing Laravel Sail for a smooth d
 
 ## Prerequisites
 
-Before you begin, ensure you have the following installed on your machine:
+Before you begin, ensure you have the following installed on your WINDOWS machine:
 
-- **Docker**: Laravel Sail utilizes Docker for its development environment. Make sure Docker is installed and running.
+- **Docker**: Laravel Sail utilizes Docker for its development environment. Make sure Docker is installed and running with wsl enabled to use wsl.
 - **Git**: To clone the project repository from GitHub.
 - **Composer**: Used for managing PHP dependencies (if not already included in the Sail container).
 
@@ -56,7 +59,7 @@ Before you begin, ensure you have the following installed on your machine:
 
 ### Step 1: Clone the Repository
 
-Open your terminal and run the following command to clone the Laravel Sail project from GitHub:
+Open your WSL2 terminal and run the following command to clone the Laravel Sail project from GitHub:
 
 ```bash
 git clone https://github.com/your-username/your-laravel-sail-repo.git
@@ -82,15 +85,22 @@ This command will start all necessary services defined in the docker-compose.yml
 Step 6: Generate the Application Key
 While the containers are running, you may need to generate the application key for Laravel. Open another terminal window and run:
 
-bash
-Copy code
 ./vendor/bin/sail artisan key:generate
-Step 7: Run Migrations (Optional)
+Step 7: Run Migrations 
 If your project has migrations, run the following command to create the database schema:
-
 ./vendor/bin/sail artisan migrate
+
 Step 8: Access the Application
 Once the containers are up and running, you can access your Laravel application in your web browser at:
-
-
 http://localhost
+
+Step 9: How to stop the containers
+Once the containers are up and running, you can stop them with the following command:
+./vendor/bin/sail down
+
+Step 10: Run the queue job with this command
+./vendor/bin/sail queue:work
+This listens for any queued jobs and executes them. It's necessary since the application uses queues
+
+
+
