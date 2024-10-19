@@ -5,11 +5,15 @@ namespace App\Jobs;
 use App\Http\Controllers\RewardController;
 use App\Models\Reward;
 use Carbon\Traits\Serialization;
+use Error;
+use Exception;
 use Illuminate\Contracts\Queue\ShouldQueue;
 // use Illuminate\Foundation\Bus\DispatchesJobs;
 use Illuminate\Foundation\Queue\Queueable;
 use Illuminate\Queue\InteractsWithQueue;
 use Illuminate\Queue\SerializesModels;
+
+use function Illuminate\Log\log;
 
 class InsertRewardsJob implements ShouldQueue
 {
@@ -36,10 +40,4 @@ class InsertRewardsJob implements ShouldQueue
     }
 
 
-    public function failed(\Exception $exception)
-    {
-        // also send email to admin
-        // Handle the job failure (e.g., log the error, notify admins)
-        // \Log::error('Job failed: ' . $exception->getMessage());
-    }
 }

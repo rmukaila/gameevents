@@ -3,25 +3,29 @@
 namespace App\Http\Controllers;
 
 use App\Models\Player;
+use App\Traits\HttpResponse;
+use Exception;
 use Illuminate\Http\Request;
 
 class PlayerController extends Controller
 {
-    /**
-     * Display a listing of the resource.
-     */
-    public function index()
-    {
-        //
-    }
-
-
+    use HttpResponse;
     /**
      * Store a newly created resource in storage.
      */
     public function store(Request $request)
     {
-        return Player::create($request->all());
+        //validate request and make sure country is small letters
+        try {
+            $request->validate([
+                'name' => 'required',
+                'country' => 'required|lowercase',
+            ]);
+            $player = Player::create($request->all());
+            return $this->success(['player' => $player], 'Player created successfully');
+        } catch (Exception $th) {
+            $this->error("Something went wrong: " . $th->getMessage());
+        }
     }
 
     /**

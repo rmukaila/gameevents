@@ -12,6 +12,8 @@ use Carbon\Carbon;
 use Exception;
 use Illuminate\Http\Request;
 
+use function Illuminate\Log\log;
+
 class RewardController extends Controller
 {
     use HttpResponse;
@@ -21,33 +23,40 @@ class RewardController extends Controller
      */
     public  function rewardAllPlayers__()
     {
-        $endedEvent = MyHelperController::getJustEndedEvent();
-        // $endedEvent = MyHelperController::getCurrentActiveEvent();
-
-        if (! empty($endedEvent)) {
-        //get all rooms for the event
-            $rooms = Room::where('event_id', $endedEvent->id)->get();
-            foreach ($rooms as $room) {
-                $this->rewardRoom($room->id);
-            }
-
-            //deactivate event
-            $endedEvent->is_active = false;
-            $endedEvent->save();
-        }       
+        try {
+            //code...
+            $endedEvent = MyHelperController::getJustEndedEvent();
+            // $endedEvent = MyHelperController::getCurrentActiveEvent();
+    
+            if (! empty($endedEvent)) {
+                log('Ended Event: ' . $endedEvent->name);
+            //get all rooms for the event
+                $rooms = Room::where('event_id', $endedEvent->id)->get();
+                if (!empty($rooms)) {
+                    
+                    foreach ($rooms as $room) {
+                        try {
+                            $this->rewardRoom($room->id);
+                        } catch (Exception $th) {
+                            //Log the error with exception and related room_id and eventIDs
+                            //send mail to admin
+                        }
+                    }
+                }
+    
+                //deactivate event
+                $endedEvent->is_active = false;
+                $endedEvent->save();
+            }       
+        } catch (\Throwable $th) {
+            throw $th;
+        }
     }
 
     //reward all players
     public function rewardAllPlayers()
     {
-        // $now = Carbon::now();
-        // $justEndedEvent = Event::where('end_date', '<=', $now)
-        // ->where('end_date', '>=', $now->copy()->subWeek())  // Within the last week
-        // ->orderBy('end_date', 'desc')  // Get the most recent ended event
-        // ->first();
-        // return Carbon::now()->copy()->subWeek();
-        // $this->rewardAllPlayers__();
-        //enqueue job for rewarding playesrs
+       
         InsertRewardsJob::dispatch();
 
         return $this->success('Player rewarding queued');

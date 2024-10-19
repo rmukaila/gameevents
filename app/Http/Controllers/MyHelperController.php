@@ -25,6 +25,7 @@ class MyHelperController extends Controller
             //get available room
             $maxRoomSize = config('app.max_room_size');
             $room = Room::where('country', $player->country)
+            ->where('event_id', $event->id) //this ensures that players not added to old rooms belonging to old events
             ->where('current_size', '<', $maxRoomSize)
             ->first();
             
@@ -75,16 +76,16 @@ class MyHelperController extends Controller
         }
 
 
-        if (empty($room)) {
-            $room = new Room();
-            $room->country = $player->country;
-            $room->current_size = 1;
-            $room->capacity = $maxRoomSize;
-            $room->save();
-        }
+        // if (empty($room)) {
+        //     $room = new Room();
+        //     $room->country = $player->country;
+        //     $room->current_size = 1;
+        //     $room->capacity = $maxRoomSize;
+        //     $room->save();
+        // }
 
-        //add player to room
-        $room->players()->attach($player->id);
+        // //add player to room
+        // $room->players()->attach($player->id);
     }
 
 
@@ -103,8 +104,9 @@ class MyHelperController extends Controller
 
         // Get the current week's start and end date
         
-        // Query and cache the current active event 60 minutes cashe
-        $currentActiveEvent = Cache::remember('currentActiveEventess', 1, function (){
+        // Query and cache the current active event 60 minutes cashe.
+        //caching for 60 minutes with the understanding that there could only be one active event per week
+        $currentActiveEvent = Cache::remember('currentActiveEventess', 60, function (){
             $startOfWeek = Carbon::now()->startOfWeek();  // Start of the current week
             $endOfWeek = Carbon::now()->endOfWeek();
             
@@ -122,8 +124,10 @@ class MyHelperController extends Controller
     {
         //NOTE: VERIFY THIS THAT CARBONS DATE FORMATTING MATCHES WHATS IN DATABASE
         $now = Carbon::now();
+        $oneWeekAgo = $now->copy()->subWeek();
         $justEndedEvent = Event::where('end_date', '<=', $now)
-        ->where('end_date', '>=', $now()->copy()->subWeek())  // Within the last week
+        ->where('end_date', '>=', $oneWeekAgo) // Within the last week
+        ->where('is_active', 1)  
         ->orderBy('end_date', 'desc')  // Get the most recent ended event
         ->first();
             
