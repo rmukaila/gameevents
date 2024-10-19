@@ -39,7 +39,7 @@
   - [Step 9: Stopping the Containers](#step-9-stopping-the-containers)
   - [Step 10: Run the queue job](#step-10-run-queue-job)
   - [Step 11: Access the Database GUI (Phpmyadmin)](#step-11-phpmyadmin-ui)
-  - [Step 12: Run the ](#step-11-)
+  - [Step 12:This is optionsl. Run the database seeder (optional) ](#step-11-)
 - [Additional Commands](#additional-commands)
 - [Conclusion](#conclusion)
 
@@ -50,7 +50,7 @@ This repository contains a Laravel project utilizing Laravel Sail for a smooth d
 ## Prerequisites
 
 Before you begin, ensure you have the following installed on your WINDOWS machine:
-
+- **NOTE**: the .env file has been intentionaly uploaded for ease of setup so you don't need to create one anymore
 - **Docker**: Laravel Sail utilizes Docker for its development environment. Make sure Docker is installed and running with wsl enabled to use wsl.
 - **Git**: To clone the project repository from GitHub.
 - **Composer**: Used for managing PHP dependencies (if not already included in the Sail container).
@@ -102,5 +102,11 @@ Step 10: Run the queue job with this command
 ./vendor/bin/sail queue:work
 This listens for any queued jobs and executes them. It's necessary since the application uses queues
 
+Step 11: Access the Database GUI (Phpmyadmin)
+When the containers are all app and running visit the phpmyadmin dasboard here:
+localhost:8081
+
+Username: sail
+password: password
 
 
