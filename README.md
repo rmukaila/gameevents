@@ -1,4 +1,33 @@
-# Laravel Sail Project
+
+
+# API Documentation
+
+| API Endpoint                     | Method | Purpose/Behavior                                                                                                                                                  | Request Parameters               | Response                                                                                     |
+|-----------------------------------|--------|------------------------------------------------------------------------------------------------------------------------------------------------------------------|----------------------------------|------------------------------------------------------------------------------------------------|
+| `/api/level-success`              | POST   | Tracks the player's level completion and updates their score within their assigned room.                                                                          | `player_id` | Updates player score and assigns room if necessary.                                           |
+|                                   |        | - Checks if the player is in a room for the current event.                                                                                                        |                                  |                                                                                            |
+|                                   |        | - Assigns the player to a room if not already in one (based on their country, ensuring the room doesn't exceed 50 players).                                       |                                  |                                                                                            |
+|                                   |        | - Increments the player's score within the room.                                                                                                                 |                                  |                                                                                            |
+| `/api/event-score-list/{room_id}` | GET    | Returns the list of players in a specific room, sorted by their scores in descending order.                                                                       | `room_id`                        | A list of players with their scores, ranked from highest to lowest.                          |
+| `/api/all-rooms-score-list`       | GET    | Provides a list of all rooms created for the event, along with the total score for each room.                                                                     | None                             | A list of rooms, each containing:                                                            |
+|                                   |        |                                                                                                                                                                  |                                  | - `room_id`: The ID of the room.                                                             |
+|                                   |        |                                                                                                                                                                  |                                  | - `total_score`: The sum of all players’ scores in the room.                                 |
+| `/api/create-event`               | POST   | Creates a new event for the game.                                                                                                                                 | `name`, `country`, `start_date`, `end_date`, `is_active`  | Event created with the specified parameters.                                                 |
+|                                   |        |                                                                                                                                                                  |                                  | **Sample Payload:**                                                                          |
+|                                   |        |                                                                                                                                                                  |                                  | ```json                                                                                     |
+|                                   |        |                                                                                                                                                                  |                                  | {                                                                                           |
+|                                   |        |                                                                                                                                                                  |                                  |   "name": "The Badass5",                                                                     |
+|                                   |        |                                                                                                                                                                  |                                  |   "country": "Togo",                                                                         |
+|                                   |        |                                                                                                                                                                  |                                  |   "start_date": "2024-11-08 12:00:00",                                                       |
+|                                   |        |                                                                                                                                                                  |                                  |   "end_date": "2024-11-16 10:00:00",                                                         |
+|                                   |        |                                                                                                                                                                  |                                  |   "is_active": 1                                                                             |
+|                                   |        |                                                                                                                                                                  |                                  | }                                                                                           |
+| `/api/create-player`              | POST   | Registers a new player in the system.                                                                                                                             | `name`, `country`                | Player record is created with the provided name and country.                                 |
+| `/api/reward-players`             | POST   | Rewards the top players in each room based on their rankings at the end of the event.                                                                             | `event_id`                       | Rewards distributed based on the players' rankings in their rooms.                           |
+                  |
+
+
+# Installation Guide
 
 ## Table of Contents
 - [Introduction](#introduction)
@@ -6,7 +35,6 @@
 - [Getting Started](#getting-started)
   - [Step 1: Clone the Repository](#step-1-clone-the-repository)
   - [Step 2: Change Directory](#step-2-change-directory)
-  - [Step 3: Copy the Environment File](#step-3-copy-the-environment-file)
   - [Step 4: Install Dependencies](#step-4-install-dependencies)
   - [Step 5: Build the Docker Containers](#step-5-build-the-docker-containers)
   - [Step 6: Generate the Application Key](#step-6-generate-the-application-key)
