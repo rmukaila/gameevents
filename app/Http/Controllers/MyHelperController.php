@@ -11,6 +11,7 @@ use Carbon\Carbon;
 use Exception;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Cache;
+use Illuminate\Support\Facades\DB;
 
 use function Illuminate\Log\log;
 
@@ -28,8 +29,10 @@ class MyHelperController extends Controller
             ->first();
             
             $score_per_level = config('app.score_per_level');
-            //if theres no room available create new room based on country
             if (empty($room)) {
+                DB::beginTransaction();//Atomicity.this helps ensure that the transaction will be rolled back if any of the queries fail
+
+                //if theres no room available create new room based on country
                 $new_room = new Room();
                 $new_room->country = $player->country;
                 $new_room->current_size = 1;
@@ -37,15 +40,24 @@ class MyHelperController extends Controller
                 $new_room->event_id = $event->id;
                 $new_room->save();
                 
-                //assign player to room
-                RoomAssignment::create([
-                    'player_id' => $player->id,
-                    'room_id' => $new_room->id,
-                    'event_id' => $event->id,
-                    'score' => $score_per_level
-                ]);                    
+                //assign player to created room
+                $roomAssigment = new RoomAssignment();
+                $roomAssigment->player_id = $player->id;
+                $roomAssigment->room_id = $new_room->id;
+                $roomAssigment->event_id = $event->id;
+                $roomAssigment->score = $score_per_level;
+                $roomAssigment->save();
+
+                DB::commit();
+
+                // RoomAssignment::create([
+                //     'player_id' => $player->id,
+                //     'room_id' => $new_room->id,
+                //     'event_id' => $event->id,
+                //     'score' => $score_per_level
+                // ]);                    
             }else{
-                //assign player to room
+                //assign player to existing  room
                 RoomAssignment::create([
                     'player_id' => $player->id,
                     'room_id' => $room->id,
@@ -58,7 +70,8 @@ class MyHelperController extends Controller
             }
         } catch (Exception $ex) {
             // log error//add player to room
-            return HttpResponse::error($ex->getMessage());
+            DB::rollBack(); //reverse any database transaction
+            return HttpResponse::error("Error adding player to room", 500);
         }
 
 
