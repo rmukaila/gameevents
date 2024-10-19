@@ -90,7 +90,7 @@ While the containers are running, you may need to generate the application key f
 
 ./vendor/bin/sail artisan key:generate
 Step 7: Run Migrations 
-Run the following commands in same order to create the database schema:
+Run the following command to create the database schema:
 ./vendor/bin/sail artisan migrate
 
 Step 8: Access the Application
