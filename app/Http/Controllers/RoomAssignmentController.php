@@ -82,7 +82,7 @@ class RoomAssignmentController extends Controller
                 ->join('players', 'room_assignments.player_id', '=', 'players.id')
                 ->select('players.name', 'players.id', 'room_assignments.score')
                 ->orderBy('room_assignments.score', 'desc')
-                ->orderBy('room_assignments.updated_at', 'desc')
+                ->orderBy('room_assignments.updated_at', 'asc')
                 ->get();
             });            
             return $this->success(['event_score_list' => $roomAssignment, 'room_id' => $room_id]);
@@ -108,10 +108,11 @@ class RoomAssignmentController extends Controller
             }
 
             //query and cache for 1 minute
-            $allRooms = Cache::remember('event_score_list', 1, function () use ($event) {
+            $allRooms = Cache::remember('all_rooms_score_list', 1, function () use ($event) {
             
                 return RoomAssignment::where('event_id', $event->id)
                 ->selectRaw('room_id, SUM(score) as total_score')
+                ->orderBy('total_score', 'desc')
                 ->groupBy('room_id')
                 ->get();
         });            
