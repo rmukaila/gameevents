@@ -57,6 +57,8 @@ Before you begin, ensure you have the following installed on your WINDOWS machin
 
 ## Getting Started
 
+## NOTE: THESE STEPS ONLY WORKS IN WINDOWS WSL TERMINAL
+
 ### Step 1: Clone the Repository
 
 Open your WSL2 terminal and run the following command to clone the Laravel Sail project from GitHub:
@@ -71,24 +73,28 @@ git clone git@github.com:rmukaila/gameevents.git
 
 Step 2: Change Directory
 Navigate into the project directory:
-cd your-laravel-sail-repo
+cd gameevents
 
 
 Step 4: Install Dependencies
 Run the following command to install the Composer dependencies:
-
-./vendor/bin/sail composer install
+docker run --rm \
+    -u "$(id -u):$(id -g)" \
+    -v $(pwd):/var/www/html \
+    -w /var/www/html \
+    laravelsail/php82-composer:latest \
+    composer install
 
 Step 5: Build the Docker Containers
 Start the Sail environment and build the Docker containers:
+./vendor/bin/sail up -d
 
-./vendor/bin/sail up
 This command will start all necessary services defined in the docker-compose.yml file, .
 
 Step 6: Generate the Application Key
 While the containers are running, you may need to generate the application key for Laravel. Open another terminal window and run:
-
 ./vendor/bin/sail artisan key:generate
+
 Step 7: Run Migrations 
 Run the following command to create the database schema:
 ./vendor/bin/sail artisan migrate
